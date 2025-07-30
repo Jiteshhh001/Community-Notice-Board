@@ -1,0 +1,39 @@
+# Netlify configuration for Community Notice Board
+
+[build]
+  # No build process needed for static HTML
+  publish = "."
+
+[build.environment]
+  # No environment variables needed
+
+[[headers]]
+  # Apply security headers to all routes
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    
+    # Cache static assets for 1 year
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  # Cache HTML files for 1 hour
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Redirect rules (if needed)
+[[redirects]]
+  # Redirect /admin to /#admin (if you want direct admin access)
+  from = "/admin"
+  to = "/#admin"
+  status = 301
+
+# Form handling (for future contact forms)
+[[forms]]
+  # If you add a contact form later
+  name = "contact"

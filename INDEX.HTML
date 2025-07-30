@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Notice Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <style>
+        /* Custom styles for enhanced UX */
+        .announcement-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .announcement-content.expanded {
+            max-height: 500px;
+        }
+        .admin-section {
+            display: none;
+        }
+        .admin-section.active {
+            display: block;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Header -->
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <button id="homeBtn" class="px-4 py-2 rounded hover:bg-blue-700 transition duration-300">
+                <div class="flex items-center">
+                    <i class="fas fa-home text-2xl mr-3"></i>
+                    <h1 class="text-xl font-bold">Ajnara Notice Board</h1>
+                </div>
+                </button>
+                <div class="space-x-4">
+                    <button id="homeBtn" class="px-4 py-2 rounded hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-home mr-1"></i> Home
+                    </button>
+                    <button id="adminBtn" class="px-4 py-2 rounded hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-cog mr-1"></i> Admin
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Public View -->
+        <div id="publicView" class="space-y-8">
+            
+            <!-- Welcome Section -->
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome to Our Community</h2>
+                <p class="text-gray-600">Stay updated with the latest announcements, events, and community information</p>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button class="tab-btn py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium" data-tab="announcements">
+                            <i class="fas fa-bullhorn mr-2"></i>Announcements
+                        </button>
+                        <button class="tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="events">
+                            <i class="fas fa-calendar mr-2"></i>Events
+                        </button>
+                        <button class="tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="marketplace">
+                            <i class="fas fa-exchange-alt mr-2"></i>Buy/Sell/Rent
+                        </button>
+                        <button class="tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="contacts">
+                            <i class="fas fa-phone mr-2"></i>Important Contacts
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="p-6">
+                    
+                    <!-- Announcements Tab -->
+                    <div id="announcements" class="tab-content">
+                        <div class="space-y-4" id="announcementsList">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Events Tab -->
+                    <div id="events" class="tab-content hidden">
+                        <div class="mb-4">
+                            <div class="flex space-x-2">
+                                <button id="upcomingEventsBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Upcoming</button>
+                                <button id="pastEventsBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Past</button>
+                            </div>
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" id="eventsList">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Marketplace Tab -->
+                    <div id="marketplace" class="tab-content hidden">
+                        <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p class="text-sm text-yellow-800">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                This section is for non-commercial, community-focused exchanges only.
+                            </p>
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" id="marketplaceList">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Contacts Tab -->
+                    <div id="contacts" class="tab-content hidden">
+                        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="contactsList">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin View -->
+        <div id="adminView" class="hidden space-y-8">
+            
+            <!-- Admin Login -->
+            <div id="adminLogin" class="max-w-md mx-auto">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold text-center mb-6">Admin Login</h2>
+                                         <div class="space-y-4">
+                         <div>
+                             <label class="block text-sm font-medium text-gray-700">Email</label>
+                             <input type="email" id="adminEmail" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="admin@community.com">
+                         </div>
+                         <div>
+                             <label class="block text-sm font-medium text-gray-700">Password</label>
+                             <input type="password" id="adminPassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                         </div>
+                         <button id="loginBtn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                             Login
+                         </button>
+                         <!-- <div class="text-xs text-gray-500 text-center">
+                             <p>Demo: admin@community.com / admin123</p>
+                             <p>Note: First-time setup requires Firebase configuration</p>
+                         </div> -->
+                     </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div id="adminDashboard" class="hidden">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-800">Admin Dashboard</h2>
+                        <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Navigation -->
+                <div class="bg-white rounded-lg shadow-md mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="flex space-x-8 px-6">
+                            <button class="admin-tab-btn py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium" data-admin-tab="manage-announcements">
+                                Announcements
+                            </button>
+                            <button class="admin-tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-admin-tab="manage-events">
+                                Events
+                            </button>
+                            <button class="admin-tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-admin-tab="manage-marketplace">
+                                Marketplace
+                            </button>
+                            <button class="admin-tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-admin-tab="manage-contacts">
+                                Contacts
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Admin Sections -->
+                
+                <!-- Manage Announcements -->
+                <div id="manage-announcements" class="admin-section active">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-4">Manage Announcements</h3>
+                        
+                        <!-- Add New Announcement Form -->
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <h4 class="font-semibold mb-3">Add New Announcement</h4>
+                            <div class="grid gap-4">
+                                <input type="text" id="newAnnouncementTitle" placeholder="Announcement Title" class="px-3 py-2 border rounded-md">
+                                <textarea id="newAnnouncementContent" placeholder="Announcement Content" rows="3" class="px-3 py-2 border rounded-md"></textarea>
+                                <button id="addAnnouncementBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                    <i class="fas fa-plus mr-2"></i>Add Announcement
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Existing Announcements -->
+                        <div id="adminAnnouncementsList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manage Events -->
+                <div id="manage-events" class="admin-section">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-4">Manage Events</h3>
+                        
+                        <!-- Add New Event Form -->
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <h4 class="font-semibold mb-3">Add New Event</h4>
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <input type="text" id="newEventName" placeholder="Event Name" class="px-3 py-2 border rounded-md">
+                                <input type="datetime-local" id="newEventDate" class="px-3 py-2 border rounded-md">
+                                <input type="text" id="newEventLocation" placeholder="Event Location" class="px-3 py-2 border rounded-md">
+                                <textarea id="newEventDescription" placeholder="Event Description" rows="2" class="px-3 py-2 border rounded-md md:col-span-2"></textarea>
+                                <button id="addEventBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 md:col-span-2">
+                                    <i class="fas fa-plus mr-2"></i>Add Event
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Existing Events -->
+                        <div id="adminEventsList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manage Marketplace -->
+                <div id="manage-marketplace" class="admin-section">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-4">Manage Marketplace</h3>
+                        
+                        <!-- Add New Posting Form -->
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <h4 class="font-semibold mb-3">Add New Posting</h4>
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <select id="newPostingType" class="px-3 py-2 border rounded-md">
+                                    <option value="sell">Sell</option>
+                                    <option value="buy">Buy</option>
+                                    <option value="rent">Rent</option>
+                                </select>
+                                <input type="text" id="newPostingItem" placeholder="Item/Service" class="px-3 py-2 border rounded-md">
+                                <input type="text" id="newPostingContact" placeholder="Contact (Name, Phone/Email)" class="px-3 py-2 border rounded-md">
+                                <input type="text" id="newPostingPrice" placeholder="Price (optional)" class="px-3 py-2 border rounded-md">
+                                <textarea id="newPostingDescription" placeholder="Description" rows="2" class="px-3 py-2 border rounded-md md:col-span-2"></textarea>
+                                <button id="addPostingBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 md:col-span-2">
+                                    <i class="fas fa-plus mr-2"></i>Add Posting
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Existing Postings -->
+                        <div id="adminMarketplaceList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manage Contacts -->
+                <div id="manage-contacts" class="admin-section">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-bold mb-4">Manage Important Contacts</h3>
+                        
+                        <!-- Add New Contact Form -->
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                            <h4 class="font-semibold mb-3">Add New Contact</h4>
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <input type="text" id="newContactName" placeholder="Name" class="px-3 py-2 border rounded-md">
+                                <select id="newContactCategory" class="px-3 py-2 border rounded-md">
+                                    <option value="Management">Management</option>
+                                    <option value="Security">Security</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                    <option value="Emergency">Emergency</option>
+                                    <option value="Utilities">Utilities</option>
+                                </select>
+                                <input type="text" id="newContactRole" placeholder="Role/Service" class="px-3 py-2 border rounded-md">
+                                <input type="text" id="newContactPhone" placeholder="Phone Number" class="px-3 py-2 border rounded-md">
+                                <input type="email" id="newContactEmail" placeholder="Email (optional)" class="px-3 py-2 border rounded-md md:col-span-2">
+                                <button id="addContactBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 md:col-span-2">
+                                    <i class="fas fa-plus mr-2"></i>Add Contact
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Existing Contacts -->
+                        <div id="adminContactsList">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /*
+         * Community Notice Board Application with Firebase Backend
+         * 
+         * This application uses Firebase Firestore for data persistence and
+         * Firebase Authentication for admin login.
+         * 
+         * Features:
+         * - Real-time database for all users
+         * - Secure admin authentication
+         * - CRUD operations for all content types
+         * - Responsive design and user interactions
+         * 
+         * Setup Required:
+         * 1. Create Firebase project
+         * 2. Enable Firestore Database
+         * 3. Enable Authentication (Email/Password)
+         * 4. Update firebaseConfig below
+         * 5. Create admin user in Firebase Console
+         */
+
+     // Firebase Configuration
+        // ⚠️ IMPORTANT: Replace with your Firebase project configuration
+        // Import the functions you need from the SDKs you need
+        // import { initializeApp } from "firebase/app";
+        // import { getAnalytics } from "firebase/analytics";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+        apiKey: "AIzaSyDydVsP2Fx6dWxK8zVE0DadAeF6ffMsjz0",
+        authDomain: "community-board-91220.firebaseapp.com",
+        projectId: "community-board-91220",
+        storageBucket: "community-board-91220.firebasestorage.app",
+        messagingSenderId: "881220680386",
+        appId: "1:881220680386:web:01af47e292bf70bbc4d95b",
+        measurementId: "G-1EJD1E2ERK"
+        };
+
+        // Initialize Firebase
+        // const app = initializeApp(firebaseConfig);
+        // const analytics = getAnalytics(app);
+
+     // Initialize Firebase
+        let db, auth;
+        let firebaseInitialized = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+            firebaseInitialized = true;
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            console.log('Using demo mode with sample data');
+        }
+
+        // Application State
+        let currentView = 'public';
+        let currentTab = 'announcements';
+        let currentAdminTab = 'manage-announcements';
+        let isAdminLoggedIn = false;
+        let currentUser = null;
+
+        // Data Management Functions
+        async function saveData(collection, data) {
+            if (!firebaseInitialized) {
+                console.warn('Firebase not initialized, data not saved');
+                return false;
+            }
+
+            try {
+                if (data.id) {
+                    // Update existing document
+                    await db.collection(collection).doc(data.id).set(data);
+                } else {
+                    // Add new document
+                    const docRef = await db.collection(collection).add({
+                        ...data,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    data.id = docRef.id;
+                }
+                return true;
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showNotification('Error saving data: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        async function loadData(collection) {
+            if (!firebaseInitialized) {
+                return getDemoData(collection);
+            }
+
+            try {
+                const snapshot = await db.collection(collection).orderBy('createdAt', 'desc').get();
+                const data = [];
+                snapshot.forEach(doc => {
+                    const docData = doc.data();
+                    data.push({
+                        id: doc.id,
+                        ...docData,
+                        // Convert Firestore timestamps to ISO strings
+                        date: docData.date || (docData.createdAt ? docData.createdAt.toDate().toISOString() : new Date().toISOString())
+                    });
+                });
+                return data;
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showNotification('Error loading data: ' + error.message, 'error');
+                return getDemoData(collection);
+            }
+        }
+
+        async function deleteData(collection, id) {
+            if (!firebaseInitialized) {
+                console.warn('Firebase not initialized, data not deleted');
+                return false;
+            }
+
+            try {
+                await db.collection(collection).doc(id).delete();
+                return true;
+            } catch (error) {
+                console.error('Error deleting data:', error);
+                showNotification('Error deleting data: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // Demo data for when Firebase is not configured
+        function getDemoData(collection) {
+            const demoData = {
+                announcements: [
+                    {
+                        id: 'demo1',
+                        title: "Welcome to Our Community Notice Board",
+                        content: "This is your digital hub for all community updates, events, and important information. Check back regularly for the latest news and announcements.",
+                        date: new Date().toISOString()
+                    },
+                    {
+                        id: 'demo2',
+                        title: "Firebase Setup Required",
+                        content: "To enable real-time data sharing, please configure Firebase as described in the setup instructions. Currently showing demo data.",
+                        date: new Date(Date.now() - 86400000).toISOString()
+                    }
+                ],
+                events: [
+                    {
+                        id: 'demo1',
+                        name: "Community BBQ",
+                        date: new Date(Date.now() + 7 * 86400000).toISOString(),
+                        location: "Community Garden",
+                        description: "Annual community barbecue event. Bring your family and friends for a fun day of food, games, and socializing."
+                    }
+                ],
+                marketplace: [
+                    {
+                        id: 'demo1',
+                        type: "sell",
+                        item: "Demo Item",
+                        description: "This is demo data. Configure Firebase to enable real marketplace functionality.",
+                        contact: "Demo Contact",
+                        price: "$0",
+                        date: new Date().toISOString()
+                    }
+                ],
+                contacts: [
+                    {
+                        id: 'demo1',
+                        name: "Demo Contact",
+                        category: "Management",
+                        role: "Demo Role",
+                        phone: "(555) 000-0000",
+                        email: "demo@example.com"
+                    }
+                ]
+            };
+            return demoData[collection] || [];
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Initialize default data if Firebase is configured but empty
+        async function initializeDefaultData() {
+            if (!firebaseInitialized) {
+                console.log('Firebase not initialized, skipping data initialization');
+                return;
+            }
+
+            try {
+                // Check if announcements collection exists and has data
+                const announcementsSnapshot = await db.collection('announcements').limit(1).get();
+                
+                if (announcementsSnapshot.empty) {
+                    console.log('Database is empty, but skipping auto-initialization. Admin can add content after logging in.');
+                    // Note: We don't auto-initialize data anymore to avoid permission errors
+                    // Admin users can manually add the first content after logging in
+                }
+            } catch (error) {
+                console.log('Cannot check database contents (this is normal if not authenticated):', error.message);
+            }
+        }
+
+        // Initialize default data for authenticated admin
+        async function initializeDefaultDataForAdmin() {
+            if (!firebaseInitialized || !isAdminLoggedIn) {
+                return;
+            }
+
+            try {
+                // Check if announcements collection exists and has data
+                const announcementsSnapshot = await db.collection('announcements').limit(1).get();
+                
+                if (announcementsSnapshot.empty) {
+                    console.log('Initializing default data for new database...');
+                    
+                    // Add default data
+                    const defaultAnnouncements = [
+                        {
+                            title: "Welcome to Our Community Notice Board",
+                            content: "This is your digital hub for all community updates, events, and important information. Check back regularly for the latest news and announcements.",
+                            date: new Date().toISOString(),
+                            author: currentUser ? currentUser.email : 'admin'
+                        },
+                        {
+                            title: "Getting Started",
+                            content: "Congratulations! Your community notice board is now set up with Firebase. You can add announcements, events, marketplace postings, and important contacts using the admin panel.",
+                            date: new Date(Date.now() - 86400000).toISOString(),
+                            author: currentUser ? currentUser.email : 'admin'
+                        }
+                    ];
+
+                    for (const announcement of defaultAnnouncements) {
+                        await saveData('announcements', announcement);
+                    }
+
+                    // Refresh the admin content to show new data
+                    loadAdminContent();
+                    if (currentTab === 'announcements') loadAnnouncements();
+
+                    showNotification('Default content added to get you started!', 'success');
+                    console.log('Default data initialized successfully');
+                }
+            } catch (error) {
+                console.error('Error initializing default data:', error);
+                showNotification('Note: Add your first content using the forms below', 'info');
+            }
+        }
+
+        // UI Management Functions
+        function showView(viewName) {
+            document.getElementById('publicView').classList.toggle('hidden', viewName !== 'public');
+            document.getElementById('adminView').classList.toggle('hidden', viewName !== 'admin');
+            currentView = viewName;
+
+            if (viewName === 'admin' && !isAdminLoggedIn) {
+                document.getElementById('adminLogin').classList.remove('hidden');
+                document.getElementById('adminDashboard').classList.add('hidden');
+            }
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.remove('hidden');
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-blue-500', 'text-blue-600');
+            
+            currentTab = tabName;
+            loadTabContent(tabName);
+        }
+
+        function showAdminTab(tabName) {
+            // Hide all admin sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected admin section
+            document.getElementById(tabName).classList.add('active');
+            
+            // Update admin tab buttons
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            const activeBtn = document.querySelector(`[data-admin-tab="${tabName}"]`);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-blue-500', 'text-blue-600');
+            
+            currentAdminTab = tabName;
+            loadAdminContent();
+        }
+
+        // Content Loading Functions
+        function loadTabContent(tabName) {
+            switch(tabName) {
+                case 'announcements':
+                    loadAnnouncements();
+                    break;
+                case 'events':
+                    loadEvents();
+                    break;
+                case 'marketplace':
+                    loadMarketplace();
+                    break;
+                case 'contacts':
+                    loadContacts();
+                    break;
+            }
+        }
+
+        async function loadAnnouncements() {
+            const announcements = await loadData('announcements');
+            const container = document.getElementById('announcementsList');
+            
+            if (announcements.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">No announcements yet.</p>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            announcements.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            container.innerHTML = announcements.map(announcement => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-lg text-gray-800">${announcement.title}</h3>
+                        <span class="text-sm text-gray-500">${formatDate(announcement.date)}</span>
+                    </div>
+                    <div class="announcement-content" id="content-${announcement.id}">
+                        <p class="text-gray-600 mb-3">${announcement.content}</p>
+                    </div>
+                    <button onclick="toggleAnnouncement('${announcement.id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        <span id="toggle-${announcement.id}">Read More</span> <i class="fas fa-chevron-down ml-1"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function toggleAnnouncement(id) {
+            const content = document.getElementById(`content-${id}`);
+            const toggle = document.getElementById(`toggle-${id}`);
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggle.textContent = 'Read More';
+            } else {
+                content.classList.add('expanded');
+                toggle.textContent = 'Read Less';
+            }
+        }
+
+        async function loadEvents() {
+            const events = await loadData('events');
+            const container = document.getElementById('eventsList');
+            const now = new Date();
+            
+            // Filter events based on current filter
+            const showUpcoming = document.getElementById('upcomingEventsBtn').classList.contains('bg-blue-500');
+            const filteredEvents = events.filter(event => {
+                const eventDate = new Date(event.date);
+                return showUpcoming ? eventDate >= now : eventDate < now;
+            });
+
+            if (filteredEvents.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8 col-span-full">No events found.</p>';
+                return;
+            }
+
+            // Sort by date
+            filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            container.innerHTML = filteredEvents.map(event => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300">
+                    <h3 class="font-semibold text-lg text-gray-800 mb-2">${event.name}</h3>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar mr-2 text-blue-500"></i>
+                            ${formatDateTime(event.date)}
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>
+                            ${event.location}
+                        </div>
+                        <p class="mt-3">${event.description}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadMarketplace() {
+            const postings = await loadData('marketplace');
+            const container = document.getElementById('marketplaceList');
+            
+            if (postings.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8 col-span-full">No postings yet.</p>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            postings.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            container.innerHTML = postings.map(posting => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-lg text-gray-800">${posting.item}</h3>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(posting.type)}">
+                            ${posting.type.toUpperCase()}
+                        </span>
+                    </div>
+                    <p class="text-gray-600 mb-3">${posting.description}</p>
+                    ${posting.price ? `<p class="font-semibold text-green-600 mb-2">${posting.price}</p>` : ''}
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-user mr-1"></i> ${posting.contact}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadContacts() {
+            const contacts = await loadData('contacts');
+            const container = document.getElementById('contactsList');
+            
+            if (contacts.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8 col-span-full">No contacts yet.</p>';
+                return;
+            }
+
+            // Group contacts by category
+            const groupedContacts = contacts.reduce((groups, contact) => {
+                const category = contact.category || 'Other';
+                if (!groups[category]) groups[category] = [];
+                groups[category].push(contact);
+                return groups;
+            }, {});
+
+            container.innerHTML = Object.entries(groupedContacts).map(([category, categoryContacts]) => `
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-lg text-gray-800 border-b border-gray-200 pb-2">${category}</h3>
+                    ${categoryContacts.map(contact => `
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800">${contact.name}</h4>
+                            <p class="text-sm text-gray-600 mb-2">${contact.role}</p>
+                            <div class="space-y-1 text-sm">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-phone mr-2 text-green-500"></i>
+                                    <a href="tel:${contact.phone}" class="hover:text-blue-600">${contact.phone}</a>
+                                </div>
+                                ${contact.email ? `
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-envelope mr-2 text-blue-500"></i>
+                                        <a href="mailto:${contact.email}" class="hover:text-blue-600">${contact.email}</a>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        // Authentication Functions
+        async function authenticateAdmin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+
+            if (!email || !password) {
+                showNotification('Please enter both email and password!', 'error');
+                return;
+            }
+
+            if (!firebaseInitialized) {
+                // Demo mode fallback
+                if (email === 'admin@community.com' && password === 'admin123') {
+                    isAdminLoggedIn = true;
+                    currentUser = { email: 'admin@community.com', uid: 'demo-admin' };
+                    document.getElementById('adminLogin').classList.add('hidden');
+                    document.getElementById('adminDashboard').classList.remove('hidden');
+                    loadAdminContent();
+                    
+                    // Note: Demo mode doesn't need default data initialization
+                    // as it uses getDemoData() function
+                    
+                    showNotification('Logged in successfully (Demo Mode)!', 'success');
+                } else {
+                    showNotification('Invalid credentials! Demo: admin@community.com / admin123', 'error');
+                }
+                return;
+            }
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                isAdminLoggedIn = true;
+                
+                document.getElementById('adminLogin').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                
+                // Clear form
+                document.getElementById('adminEmail').value = '';
+                document.getElementById('adminPassword').value = '';
+                
+                loadAdminContent();
+                
+                // Initialize default data if database is empty
+                initializeDefaultDataForAdmin();
+                
+                showNotification('Logged in successfully!', 'success');
+            } catch (error) {
+                console.error('Authentication error:', error);
+                let errorMessage = 'Login failed: ';
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMessage += 'No user found with this email.';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Incorrect password.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'Invalid email address.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage += 'Too many failed attempts. Please try again later.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showNotification(errorMessage, 'error');
+            }
+        }
+
+        async function logoutAdmin() {
+            if (firebaseInitialized && currentUser) {
+                try {
+                    await auth.signOut();
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            }
+            
+            isAdminLoggedIn = false;
+            currentUser = null;
+            document.getElementById('adminLogin').classList.remove('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            showNotification('Logged out successfully!', 'success');
+        }
+
+        // Monitor authentication state
+        if (firebaseInitialized) {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    // User is signed in but don't auto-show admin panel
+                    console.log('User authenticated:', user.email);
+                } else {
+                    currentUser = null;
+                    if (isAdminLoggedIn) {
+                        // User was logged out externally
+                        logoutAdmin();
+                    }
+                }
+            });
+        }
+
+        function loadAdminContent() {
+            loadAdminAnnouncements();
+            loadAdminEvents();
+            loadAdminMarketplace();
+            loadAdminContacts();
+        }
+
+        async function loadAdminAnnouncements() {
+            const announcements = await loadData('announcements');
+            const container = document.getElementById('adminAnnouncementsList');
+            
+            if (announcements.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No announcements to manage.</p>';
+                return;
+            }
+
+            announcements.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            container.innerHTML = `
+                <h4 class="font-semibold mb-3">Existing Announcements</h4>
+                <div class="space-y-3">
+                    ${announcements.map(announcement => `
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h5 class="font-medium">${announcement.title}</h5>
+                                    <p class="text-sm text-gray-600 mt-1">${announcement.content.substring(0, 100)}${announcement.content.length > 100 ? '...' : ''}</p>
+                                    <span class="text-xs text-gray-400">${formatDate(announcement.date)}</span>
+                                </div>
+                                <div class="flex space-x-2 ml-4">
+                                    <button onclick="editAnnouncement('${announcement.id}')" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteAnnouncement('${announcement.id}')" class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        async function loadAdminEvents() {
+            const events = await loadData('events');
+            const container = document.getElementById('adminEventsList');
+            
+            if (events.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No events to manage.</p>';
+                return;
+            }
+
+            events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            container.innerHTML = `
+                <h4 class="font-semibold mb-3">Existing Events</h4>
+                <div class="space-y-3">
+                    ${events.map(event => `
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h5 class="font-medium">${event.name}</h5>
+                                    <p class="text-sm text-gray-600">${formatDateTime(event.date)} • ${event.location}</p>
+                                    <p class="text-sm text-gray-600 mt-1">${event.description.substring(0, 100)}${event.description.length > 100 ? '...' : ''}</p>
+                                </div>
+                                <div class="flex space-x-2 ml-4">
+                                    <button onclick="editEvent('${event.id}')" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteEvent('${event.id}')" class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        async function loadAdminMarketplace() {
+            const postings = await loadData('marketplace');
+            const container = document.getElementById('adminMarketplaceList');
+            
+            if (postings.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No postings to manage.</p>';
+                return;
+            }
+
+            postings.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            container.innerHTML = `
+                <h4 class="font-semibold mb-3">Existing Postings</h4>
+                <div class="space-y-3">
+                    ${postings.map(posting => `
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h5 class="font-medium">${posting.item}</h5>
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(posting.type)}">
+                                            ${posting.type.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">${posting.description.substring(0, 100)}${posting.description.length > 100 ? '...' : ''}</p>
+                                    <p class="text-sm text-gray-500">${posting.contact}</p>
+                                </div>
+                                <div class="flex space-x-2 ml-4">
+                                    <button onclick="editPosting('${posting.id}')" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deletePosting('${posting.id}')" class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        async function loadAdminContacts() {
+            const contacts = await loadData('contacts');
+            const container = document.getElementById('adminContactsList');
+            
+            if (contacts.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No contacts to manage.</p>';
+                return;
+            }
+
+            contacts.sort((a, b) => a.category.localeCompare(b.category));
+
+            container.innerHTML = `
+                <h4 class="font-semibold mb-3">Existing Contacts</h4>
+                <div class="space-y-3">
+                    ${contacts.map(contact => `
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h5 class="font-medium">${contact.name}</h5>
+                                    <p class="text-sm text-gray-600">${contact.role} • ${contact.category}</p>
+                                    <p class="text-sm text-gray-500">${contact.phone}${contact.email ? ` • ${contact.email}` : ''}</p>
+                                </div>
+                                <div class="flex space-x-2 ml-4">
+                                    <button onclick="editContact('${contact.id}')" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteContact('${contact.id}')" class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // CRUD Operations
+        async function addAnnouncement() {
+            const title = document.getElementById('newAnnouncementTitle').value.trim();
+            const content = document.getElementById('newAnnouncementContent').value.trim();
+
+            if (!title || !content) {
+                showNotification('Please fill in all fields!', 'error');
+                return;
+            }
+
+            const newAnnouncement = {
+                title,
+                content,
+                date: new Date().toISOString(),
+                author: currentUser ? currentUser.email : 'admin'
+            };
+
+            const success = await saveData('announcements', newAnnouncement);
+            
+            if (success) {
+                // Clear form
+                document.getElementById('newAnnouncementTitle').value = '';
+                document.getElementById('newAnnouncementContent').value = '';
+
+                loadAdminAnnouncements();
+                if (currentTab === 'announcements') loadAnnouncements();
+                
+                showNotification('Announcement added successfully!', 'success');
+            }
+        }
+
+        async function deleteAnnouncement(id) {
+            if (confirm('Are you sure you want to delete this announcement?')) {
+                const success = await deleteData('announcements', id);
+                
+                if (success) {
+                    loadAdminAnnouncements();
+                    if (currentTab === 'announcements') loadAnnouncements();
+                    
+                    showNotification('Announcement deleted successfully!', 'success');
+                }
+            }
+        }
+
+        async function addEvent() {
+            const name = document.getElementById('newEventName').value.trim();
+            const date = document.getElementById('newEventDate').value;
+            const location = document.getElementById('newEventLocation').value.trim();
+            const description = document.getElementById('newEventDescription').value.trim();
+
+            if (!name || !date || !location || !description) {
+                showNotification('Please fill in all fields!', 'error');
+                return;
+            }
+
+            const newEvent = {
+                name,
+                date: new Date(date).toISOString(),
+                location,
+                description,
+                author: currentUser ? currentUser.email : 'admin'
+            };
+
+            const success = await saveData('events', newEvent);
+            
+            if (success) {
+                // Clear form
+                document.getElementById('newEventName').value = '';
+                document.getElementById('newEventDate').value = '';
+                document.getElementById('newEventLocation').value = '';
+                document.getElementById('newEventDescription').value = '';
+
+                loadAdminEvents();
+                if (currentTab === 'events') loadEvents();
+                
+                showNotification('Event added successfully!', 'success');
+            }
+        }
+
+        async function deleteEvent(id) {
+            if (confirm('Are you sure you want to delete this event?')) {
+                const success = await deleteData('events', id);
+                
+                if (success) {
+                    loadAdminEvents();
+                    if (currentTab === 'events') loadEvents();
+                    
+                    showNotification('Event deleted successfully!', 'success');
+                }
+            }
+        }
+
+        async function addPosting() {
+            const type = document.getElementById('newPostingType').value;
+            const item = document.getElementById('newPostingItem').value.trim();
+            const contact = document.getElementById('newPostingContact').value.trim();
+            const price = document.getElementById('newPostingPrice').value.trim();
+            const description = document.getElementById('newPostingDescription').value.trim();
+
+            if (!item || !contact || !description) {
+                showNotification('Please fill in required fields!', 'error');
+                return;
+            }
+
+            const newPosting = {
+                type,
+                item,
+                contact,
+                price: price || '',
+                description,
+                date: new Date().toISOString(),
+                author: currentUser ? currentUser.email : 'admin'
+            };
+
+            const success = await saveData('marketplace', newPosting);
+            
+            if (success) {
+                // Clear form
+                document.getElementById('newPostingType').value = 'sell';
+                document.getElementById('newPostingItem').value = '';
+                document.getElementById('newPostingContact').value = '';
+                document.getElementById('newPostingPrice').value = '';
+                document.getElementById('newPostingDescription').value = '';
+
+                loadAdminMarketplace();
+                if (currentTab === 'marketplace') loadMarketplace();
+                
+                showNotification('Posting added successfully!', 'success');
+            }
+        }
+
+        async function deletePosting(id) {
+            if (confirm('Are you sure you want to delete this posting?')) {
+                const success = await deleteData('marketplace', id);
+                
+                if (success) {
+                    loadAdminMarketplace();
+                    if (currentTab === 'marketplace') loadMarketplace();
+                    
+                    showNotification('Posting deleted successfully!', 'success');
+                }
+            }
+        }
+
+        async function addContact() {
+            const name = document.getElementById('newContactName').value.trim();
+            const category = document.getElementById('newContactCategory').value;
+            const role = document.getElementById('newContactRole').value.trim();
+            const phone = document.getElementById('newContactPhone').value.trim();
+            const email = document.getElementById('newContactEmail').value.trim();
+
+            if (!name || !role || !phone) {
+                showNotification('Please fill in required fields!', 'error');
+                return;
+            }
+
+            const newContact = {
+                name,
+                category,
+                role,
+                phone,
+                email: email || '',
+                author: currentUser ? currentUser.email : 'admin'
+            };
+
+            const success = await saveData('contacts', newContact);
+            
+            if (success) {
+                // Clear form
+                document.getElementById('newContactName').value = '';
+                document.getElementById('newContactCategory').value = 'Management';
+                document.getElementById('newContactRole').value = '';
+                document.getElementById('newContactPhone').value = '';
+                document.getElementById('newContactEmail').value = '';
+
+                loadAdminContacts();
+                if (currentTab === 'contacts') loadContacts();
+                
+                showNotification('Contact added successfully!', 'success');
+            }
+        }
+
+        async function deleteContact(id) {
+            if (confirm('Are you sure you want to delete this contact?')) {
+                const success = await deleteData('contacts', id);
+                
+                if (success) {
+                    loadAdminContacts();
+                    if (currentTab === 'contacts') loadContacts();
+                    
+                    showNotification('Contact deleted successfully!', 'success');
+                }
+            }
+        }
+
+        // Edit functions (simplified for demo - in production, would show forms)
+        async function editAnnouncement(id) {
+            const announcements = await loadData('announcements');
+            const announcement = announcements.find(ann => ann.id === id);
+            if (announcement) {
+                const newTitle = prompt('Edit title:', announcement.title);
+                const newContent = prompt('Edit content:', announcement.content);
+                
+                if (newTitle && newContent) {
+                    announcement.title = newTitle;
+                    announcement.content = newContent;
+                    announcement.updatedAt = new Date().toISOString();
+                    
+                    const success = await saveData('announcements', announcement);
+                    if (success) {
+                        loadAdminAnnouncements();
+                        if (currentTab === 'announcements') loadAnnouncements();
+                        showNotification('Announcement updated successfully!', 'success');
+                    }
+                }
+            }
+        }
+
+        async function editEvent(id) {
+            const events = await loadData('events');
+            const event = events.find(evt => evt.id === id);
+            if (event) {
+                const newName = prompt('Edit event name:', event.name);
+                const newLocation = prompt('Edit location:', event.location);
+                const newDescription = prompt('Edit description:', event.description);
+                
+                if (newName && newLocation && newDescription) {
+                    event.name = newName;
+                    event.location = newLocation;
+                    event.description = newDescription;
+                    event.updatedAt = new Date().toISOString();
+                    
+                    const success = await saveData('events', event);
+                    if (success) {
+                        loadAdminEvents();
+                        if (currentTab === 'events') loadEvents();
+                        showNotification('Event updated successfully!', 'success');
+                    }
+                }
+            }
+        }
+
+        async function editPosting(id) {
+            const postings = await loadData('marketplace');
+            const posting = postings.find(post => post.id === id);
+            if (posting) {
+                const newItem = prompt('Edit item/service:', posting.item);
+                const newDescription = prompt('Edit description:', posting.description);
+                const newContact = prompt('Edit contact:', posting.contact);
+                
+                if (newItem && newDescription && newContact) {
+                    posting.item = newItem;
+                    posting.description = newDescription;
+                    posting.contact = newContact;
+                    posting.updatedAt = new Date().toISOString();
+                    
+                    const success = await saveData('marketplace', posting);
+                    if (success) {
+                        loadAdminMarketplace();
+                        if (currentTab === 'marketplace') loadMarketplace();
+                        showNotification('Posting updated successfully!', 'success');
+                    }
+                }
+            }
+        }
+
+        async function editContact(id) {
+            const contacts = await loadData('contacts');
+            const contact = contacts.find(cont => cont.id === id);
+            if (contact) {
+                const newName = prompt('Edit name:', contact.name);
+                const newRole = prompt('Edit role:', contact.role);
+                const newPhone = prompt('Edit phone:', contact.phone);
+                
+                if (newName && newRole && newPhone) {
+                    contact.name = newName;
+                    contact.role = newRole;
+                    contact.phone = newPhone;
+                    contact.updatedAt = new Date().toISOString();
+                    
+                    const success = await saveData('contacts', contact);
+                    if (success) {
+                        loadAdminContacts();
+                        if (currentTab === 'contacts') loadContacts();
+                        showNotification('Contact updated successfully!', 'success');
+                    }
+                }
+            }
+        }
+
+        // Utility Functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getTypeColor(type) {
+            switch(type) {
+                case 'sell': return 'bg-green-100 text-green-800';
+                case 'buy': return 'bg-blue-100 text-blue-800';
+                case 'rent': return 'bg-purple-100 text-purple-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize default data
+            initializeDefaultData();
+
+            // Navigation event listeners
+            document.getElementById('homeBtn').addEventListener('click', () => showView('public'));
+            document.getElementById('adminBtn').addEventListener('click', () => showView('admin'));
+
+            // Tab event listeners
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.getAttribute('data-tab');
+                    showTab(tabName);
+                });
+            });
+
+            // Admin tab event listeners
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabName = btn.getAttribute('data-admin-tab');
+                    showAdminTab(tabName);
+                });
+            });
+
+            // Admin authentication
+            document.getElementById('loginBtn').addEventListener('click', authenticateAdmin);
+            document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') authenticateAdmin();
+            });
+            document.getElementById('adminEmail').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') authenticateAdmin();
+            });
+            document.getElementById('logoutBtn').addEventListener('click', logoutAdmin);
+
+            // Event filter buttons
+            document.getElementById('upcomingEventsBtn').addEventListener('click', function() {
+                this.classList.add('bg-blue-500', 'text-white');
+                this.classList.remove('bg-gray-300', 'text-gray-700');
+                document.getElementById('pastEventsBtn').classList.remove('bg-blue-500', 'text-white');
+                document.getElementById('pastEventsBtn').classList.add('bg-gray-300', 'text-gray-700');
+                loadEvents();
+            });
+
+            document.getElementById('pastEventsBtn').addEventListener('click', function() {
+                this.classList.add('bg-blue-500', 'text-white');
+                this.classList.remove('bg-gray-300', 'text-gray-700');
+                document.getElementById('upcomingEventsBtn').classList.remove('bg-blue-500', 'text-white');
+                document.getElementById('upcomingEventsBtn').classList.add('bg-gray-300', 'text-gray-700');
+                loadEvents();
+            });
+
+            // Admin form submissions
+            document.getElementById('addAnnouncementBtn').addEventListener('click', addAnnouncement);
+            document.getElementById('addEventBtn').addEventListener('click', addEvent);
+            document.getElementById('addPostingBtn').addEventListener('click', addPosting);
+            document.getElementById('addContactBtn').addEventListener('click', addContact);
+
+            // Initialize the app
+            showView('public');
+            showTab('announcements');
+            
+            // Initialize default data for Firebase
+            initializeDefaultData();
+        });
+    </script>
+</body>
+</html>
