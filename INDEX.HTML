@@ -16,10 +16,12 @@
         .announcement-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+            opacity: 0.6;
         }
         .announcement-content.expanded {
-            max-height: 500px;
+            max-height: 800px;
+            opacity: 1;
         }
         .admin-section {
             display: none;
@@ -36,12 +38,12 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
     <!-- Navigation Header -->
     <nav class="bg-blue-600 text-white shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
-                <button id="homeBtn" class="px-4 py-2 rounded hover:bg-blue-700 transition duration-300">
+                <button id="logoBtn" class="px-4 py-2 rounded hover:bg-blue-700 transition duration-300">
                 <div class="flex items-center">
                     <i class="fas fa-home text-2xl mr-3"></i>
                     <h1 class="text-xl font-bold">Ajnara Notice Board</h1>
@@ -63,72 +65,89 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         <!-- Public View -->
-        <div id="publicView" class="space-y-8">
+        <div id="publicView" class="space-y-6">
             
             <!-- Welcome Section -->
-            <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome to Our Community</h2>
-                <p class="text-gray-600">Stay updated with the latest announcements, events, and community information</p>
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl shadow-xl py-5 px-4 sm:px-8 text-center text-white relative overflow-hidden">
+                <div class="absolute inset-0 bg-black opacity-10"></div>
+                <div class="relative z-10">
+                    <div class="flex justify-center mb-3">
+                        <div class="bg-white bg-opacity-20 rounded-full p-2.5">
+                            <i class="fas fa-home text-2xl"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-2">Welcome to Our Community</h2>
+                    <p class="text-blue-100 text-sm sm:text-base max-w-2xl mx-auto">Stay connected with announcements, events, and important community information</p>
+                </div>
             </div>
 
-            <!-- Navigation Tabs -->
-            <div class="bg-white rounded-lg shadow-md">
-                <div class="border-b border-gray-200">
-                    <nav class="flex space-x-8 px-6">
-                        <button class="tab-btn py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium" data-tab="announcements">
-                            <i class="fas fa-bullhorn mr-2"></i>Announcements
-                        </button>
-                        <button class="tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="events">
-                            <i class="fas fa-calendar mr-2"></i>Events
-                        </button>
-                        <button class="tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="marketplace">
-                            <i class="fas fa-exchange-alt mr-2"></i>Buy/Sell/Rent
-                        </button>
-                        <button class="tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-tab="contacts">
-                            <i class="fas fa-phone mr-2"></i>Important Contacts
-                        </button>
-                    </nav>
-                </div>
+                         <!-- Navigation Tabs -->
+             <div class="bg-white rounded-lg shadow-lg border border-gray-100">
+                 <div class="border-b border-gray-200">
+                     <nav class="flex flex-col sm:flex-row justify-center sm:space-x-4 px-3 sm:px-6">
+                         <button class="tab-btn py-3 sm:py-4 px-4 sm:px-6 border-b-2 border-blue-500 text-blue-600 font-semibold transition-all duration-300 hover:bg-blue-50 text-sm sm:text-base" data-tab="announcements">
+                             <i class="fas fa-bullhorn mr-2 sm:mr-3 text-base sm:text-lg"></i>Announcements
+                         </button>
+                         <button class="tab-btn py-3 sm:py-4 px-4 sm:px-6 border-b-2 border-transparent text-gray-600 hover:text-blue-600 font-semibold transition-all duration-300 hover:bg-gray-50 text-sm sm:text-base" data-tab="events">
+                             <i class="fas fa-calendar mr-2 sm:mr-3 text-base sm:text-lg"></i>Events
+                         </button>
+                         <button class="tab-btn py-3 sm:py-4 px-4 sm:px-6 border-b-2 border-transparent text-gray-600 hover:text-blue-600 font-semibold transition-all duration-300 hover:bg-gray-50 text-sm sm:text-base" data-tab="contacts">
+                             <i class="fas fa-address-book mr-2 sm:mr-3 text-base sm:text-lg"></i>Important Contacts
+                         </button>
+                     </nav>
+                 </div>
 
                 <!-- Tab Content -->
-                <div class="p-6">
+                <div class="p-4 sm:p-8">
                     
                     <!-- Announcements Tab -->
                     <div id="announcements" class="tab-content">
-                        <div class="space-y-4" id="announcementsList">
+                        <div class="mb-6">
+                            <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-bullhorn text-blue-600 mr-3"></i>
+                                Latest Announcements
+                            </h3>
+                            <p class="text-gray-600">Stay informed with important community updates</p>
+                        </div>
+                        <div class="space-y-4 sm:space-y-6" id="announcementsList">
                             <!-- Dynamic content will be loaded here -->
                         </div>
                     </div>
 
                     <!-- Events Tab -->
                     <div id="events" class="tab-content hidden">
-                        <div class="mb-4">
-                            <div class="flex space-x-2">
-                                <button id="upcomingEventsBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Upcoming</button>
-                                <button id="pastEventsBtn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Past</button>
+                        <div class="mb-6">
+                            <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-calendar text-blue-600 mr-3"></i>
+                                Community Events
+                            </h3>
+                            <p class="text-gray-600 mb-4">Discover what's happening in your community</p>
+                            <div class="flex space-x-3">
+                                <button id="upcomingEventsBtn" class="px-4 sm:px-6 py-2 sm:py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 font-semibold shadow-md text-sm sm:text-base">
+                                    <i class="fas fa-clock mr-2"></i>Upcoming
+                                </button>
+                                <button id="pastEventsBtn" class="px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-300 font-semibold text-sm sm:text-base">
+                                    <i class="fas fa-history mr-2"></i>Past Events
+                                </button>
                             </div>
                         </div>
-                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" id="eventsList">
+                        <div class="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3" id="eventsList">
                             <!-- Dynamic content will be loaded here -->
                         </div>
                     </div>
 
-                    <!-- Marketplace Tab -->
-                    <div id="marketplace" class="tab-content hidden">
-                        <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <p class="text-sm text-yellow-800">
-                                <i class="fas fa-info-circle mr-2"></i>
-                                This section is for non-commercial, community-focused exchanges only.
-                            </p>
-                        </div>
-                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" id="marketplaceList">
-                            <!-- Dynamic content will be loaded here -->
-                        </div>
-                    </div>
+                    
 
                     <!-- Contacts Tab -->
                     <div id="contacts" class="tab-content hidden">
-                        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" id="contactsList">
+                        <div class="mb-6">
+                            <h3 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-address-book text-blue-600 mr-3"></i>
+                                Important Contacts
+                            </h3>
+                            <p class="text-gray-600">Essential contacts for your community needs</p>
+                        </div>
+                        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3" id="contactsList">
                             <!-- Dynamic content will be loaded here -->
                         </div>
                     </div>
@@ -166,41 +185,44 @@
 
             <!-- Admin Dashboard -->
             <div id="adminDashboard" class="hidden">
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-2xl font-bold text-gray-800">Admin Dashboard</h2>
-                        <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                        </button>
-                    </div>
-                </div>
+                                 <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl shadow-xl p-6 mb-6 text-white">
+                     <div class="flex justify-between items-center">
+                         <div>
+                             <h2 class="text-2xl sm:text-3xl font-bold mb-2">Admin Dashboard</h2>
+                             <p class="text-blue-100">Manage your community content</p>
+                         </div>
+                         <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 font-semibold shadow-lg text-sm sm:text-base">
+                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                         </button>
+                     </div>
+                 </div>
 
-                <!-- Admin Navigation -->
-                <div class="bg-white rounded-lg shadow-md mb-6">
-                    <div class="border-b border-gray-200">
-                        <nav class="flex space-x-8 px-6">
-                            <button class="admin-tab-btn py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium" data-admin-tab="manage-announcements">
-                                Announcements
+                                 <!-- Admin Navigation -->
+                 <div class="bg-white rounded-lg shadow-lg border border-gray-100 mb-6">
+                     <div class="border-b border-gray-200">
+                                                 <nav class="flex flex-col sm:flex-row justify-center sm:space-x-4 px-3 sm:px-6">
+                            <button class="admin-tab-btn py-3 sm:py-4 px-4 sm:px-6 border-b-2 border-blue-500 text-blue-600 font-semibold transition-all duration-300 hover:bg-blue-50 text-sm sm:text-base" data-admin-tab="manage-announcements">
+                                <i class="fas fa-bullhorn mr-2 sm:mr-3"></i>Announcements
                             </button>
-                            <button class="admin-tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-admin-tab="manage-events">
-                                Events
+                            <button class="admin-tab-btn py-3 sm:py-4 px-4 sm:px-6 border-b-2 border-transparent text-gray-600 hover:text-blue-600 font-semibold transition-all duration-300 hover:bg-gray-50 text-sm sm:text-base" data-admin-tab="manage-events">
+                                <i class="fas fa-calendar mr-2 sm:mr-3"></i>Events
                             </button>
-                            <button class="admin-tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-admin-tab="manage-marketplace">
-                                Marketplace
-                            </button>
-                            <button class="admin-tab-btn py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700" data-admin-tab="manage-contacts">
-                                Contacts
+                            <button class="admin-tab-btn py-3 sm:py-4 px-4 sm:px-6 border-b-2 border-transparent text-gray-600 hover:text-blue-600 font-semibold transition-all duration-300 hover:bg-gray-50 text-sm sm:text-base" data-admin-tab="manage-contacts">
+                                <i class="fas fa-address-book mr-2 sm:mr-3"></i>Contacts
                             </button>
                         </nav>
-                    </div>
-                </div>
+                     </div>
+                 </div>
 
                 <!-- Admin Sections -->
                 
                 <!-- Manage Announcements -->
-                <div id="manage-announcements" class="admin-section active">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-xl font-bold mb-4">Manage Announcements</h3>
+                                 <div id="manage-announcements" class="admin-section active">
+                     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+                         <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                             <i class="fas fa-bullhorn text-blue-600 mr-3"></i>
+                             Manage Announcements
+                         </h3>
                         
                         <!-- Add New Announcement Form -->
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -222,9 +244,12 @@
                 </div>
 
                 <!-- Manage Events -->
-                <div id="manage-events" class="admin-section">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-xl font-bold mb-4">Manage Events</h3>
+                                 <div id="manage-events" class="admin-section">
+                     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+                         <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                             <i class="fas fa-calendar text-blue-600 mr-3"></i>
+                             Manage Events
+                         </h3>
                         
                         <!-- Add New Event Form -->
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -247,41 +272,15 @@
                     </div>
                 </div>
 
-                <!-- Manage Marketplace -->
-                <div id="manage-marketplace" class="admin-section">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-xl font-bold mb-4">Manage Marketplace</h3>
-                        
-                        <!-- Add New Posting Form -->
-                        <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                            <h4 class="font-semibold mb-3">Add New Posting</h4>
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <select id="newPostingType" class="px-3 py-2 border rounded-md">
-                                    <option value="sell">Sell</option>
-                                    <option value="buy">Buy</option>
-                                    <option value="rent">Rent</option>
-                                </select>
-                                <input type="text" id="newPostingItem" placeholder="Item/Service" class="px-3 py-2 border rounded-md">
-                                <input type="text" id="newPostingContact" placeholder="Contact (Name, Phone/Email)" class="px-3 py-2 border rounded-md">
-                                <input type="text" id="newPostingPrice" placeholder="Price (optional)" class="px-3 py-2 border rounded-md">
-                                <textarea id="newPostingDescription" placeholder="Description" rows="2" class="px-3 py-2 border rounded-md md:col-span-2"></textarea>
-                                <button id="addPostingBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 md:col-span-2">
-                                    <i class="fas fa-plus mr-2"></i>Add Posting
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Existing Postings -->
-                        <div id="adminMarketplaceList">
-                            <!-- Dynamic content -->
-                        </div>
-                    </div>
-                </div>
+                
 
                 <!-- Manage Contacts -->
-                <div id="manage-contacts" class="admin-section">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-xl font-bold mb-4">Manage Important Contacts</h3>
+                                 <div id="manage-contacts" class="admin-section">
+                     <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+                         <h3 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                             <i class="fas fa-address-book text-blue-600 mr-3"></i>
+                             Manage Important Contacts
+                         </h3>
                         
                         <!-- Add New Contact Form -->
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -477,17 +476,7 @@
                         description: "Annual community barbecue event. Bring your family and friends for a fun day of food, games, and socializing."
                     }
                 ],
-                marketplace: [
-                    {
-                        id: 'demo1',
-                        type: "sell",
-                        item: "Demo Item",
-                        description: "This is demo data. Configure Firebase to enable real marketplace functionality.",
-                        contact: "Demo Contact",
-                        price: "$0",
-                        date: new Date().toISOString()
-                    }
-                ],
+
                 contacts: [
                     {
                         id: 'demo1',
@@ -640,9 +629,7 @@
                 case 'events':
                     loadEvents();
                     break;
-                case 'marketplace':
-                    loadMarketplace();
-                    break;
+
                 case 'contacts':
                     loadContacts();
                     break;
@@ -662,16 +649,20 @@
             announcements.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             container.innerHTML = announcements.map(announcement => `
-                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-semibold text-lg text-gray-800">${announcement.title}</h3>
-                        <span class="text-sm text-gray-500">${formatDate(announcement.date)}</span>
+                <div class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:border-blue-200">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="font-bold text-xl text-gray-800 flex-1 pr-4">${announcement.title}</h3>
+                        <div class="flex items-center text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                            <i class="fas fa-clock mr-2"></i>
+                            ${formatDate(announcement.date)}
+                        </div>
                     </div>
                     <div class="announcement-content" id="content-${announcement.id}">
-                        <p class="text-gray-600 mb-3">${announcement.content}</p>
+                        <p class="text-gray-700 leading-relaxed mb-4">${announcement.content}</p>
                     </div>
-                    <button onclick="toggleAnnouncement('${announcement.id}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        <span id="toggle-${announcement.id}">Read More</span> <i class="fas fa-chevron-down ml-1"></i>
+                    <button onclick="toggleAnnouncement('${announcement.id}')" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200">
+                        <span id="toggle-${announcement.id}">Read More</span> 
+                        <i class="fas fa-chevron-down ml-2 transition-transform duration-200"></i>
                     </button>
                 </div>
             `).join('');
@@ -680,13 +671,16 @@
         function toggleAnnouncement(id) {
             const content = document.getElementById(`content-${id}`);
             const toggle = document.getElementById(`toggle-${id}`);
+            const icon = toggle.nextElementSibling;
             
             if (content.classList.contains('expanded')) {
                 content.classList.remove('expanded');
                 toggle.textContent = 'Read More';
+                icon.style.transform = 'rotate(0deg)';
             } else {
                 content.classList.add('expanded');
                 toggle.textContent = 'Read Less';
+                icon.style.transform = 'rotate(180deg)';
             }
         }
 
@@ -711,51 +705,38 @@
             filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
 
             container.innerHTML = filteredEvents.map(event => `
-                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300">
-                    <h3 class="font-semibold text-lg text-gray-800 mb-2">${event.name}</h3>
-                    <div class="space-y-2 text-sm text-gray-600">
-                        <div class="flex items-center">
-                            <i class="fas fa-calendar mr-2 text-blue-500"></i>
-                            ${formatDateTime(event.date)}
+                <div class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:border-blue-200">
+                    <div class="mb-4">
+                        <h3 class="font-bold text-xl text-gray-800 mb-3 text-center">${event.name}</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center bg-blue-50 p-3 rounded-lg">
+                                <div class="bg-blue-500 p-2 rounded-full">
+                                    <i class="fas fa-calendar text-white text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-semibold text-blue-800">Date & Time</p>
+                                    <p class="text-blue-700">${formatDateTime(event.date)}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center bg-red-50 p-3 rounded-lg">
+                                <div class="bg-red-500 p-2 rounded-full">
+                                    <i class="fas fa-map-marker-alt text-white text-sm"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-semibold text-red-800">Location</p>
+                                    <p class="text-red-700">${event.location}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <i class="fas fa-map-marker-alt mr-2 text-red-500"></i>
-                            ${event.location}
-                        </div>
-                        <p class="mt-3">${event.description}</p>
+                    </div>
+                    <div class="border-t border-gray-100 pt-4">
+                        <p class="text-gray-700 leading-relaxed">${event.description}</p>
                     </div>
                 </div>
             `).join('');
         }
 
-        async function loadMarketplace() {
-            const postings = await loadData('marketplace');
-            const container = document.getElementById('marketplaceList');
-            
-            if (postings.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-8 col-span-full">No postings yet.</p>';
-                return;
-            }
 
-            // Sort by date (newest first)
-            postings.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            container.innerHTML = postings.map(posting => `
-                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-semibold text-lg text-gray-800">${posting.item}</h3>
-                        <span class="px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(posting.type)}">
-                            ${posting.type.toUpperCase()}
-                        </span>
-                    </div>
-                    <p class="text-gray-600 mb-3">${posting.description}</p>
-                    ${posting.price ? `<p class="font-semibold text-green-600 mb-2">${posting.price}</p>` : ''}
-                    <div class="text-sm text-gray-500">
-                        <i class="fas fa-user mr-1"></i> ${posting.contact}
-                    </div>
-                </div>
-            `).join('');
-        }
 
         async function loadContacts() {
             const contacts = await loadData('contacts');
@@ -775,26 +756,52 @@
             }, {});
 
             container.innerHTML = Object.entries(groupedContacts).map(([category, categoryContacts]) => `
-                <div class="space-y-4">
-                    <h3 class="font-semibold text-lg text-gray-800 border-b border-gray-200 pb-2">${category}</h3>
-                    ${categoryContacts.map(contact => `
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h4 class="font-semibold text-gray-800">${contact.name}</h4>
-                            <p class="text-sm text-gray-600 mb-2">${contact.role}</p>
-                            <div class="space-y-1 text-sm">
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-phone mr-2 text-green-500"></i>
-                                    <a href="tel:${contact.phone}" class="hover:text-blue-600">${contact.phone}</a>
-                                </div>
-                                ${contact.email ? `
-                                    <div class="flex items-center text-gray-600">
-                                        <i class="fas fa-envelope mr-2 text-blue-500"></i>
-                                        <a href="mailto:${contact.email}" class="hover:text-blue-600">${contact.email}</a>
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border-l-4 border-blue-500">
+                        <h3 class="font-bold text-xl text-gray-800 flex items-center">
+                            <i class="fas fa-users mr-3 text-blue-600"></i>
+                            ${category}
+                        </h3>
+                    </div>
+                    <div class="space-y-4">
+                        ${categoryContacts.map(contact => `
+                            <div class="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-200">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-lg text-gray-800 mb-1">${contact.name}</h4>
+                                        <p class="text-blue-600 font-semibold mb-4">${contact.role}</p>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center">
+                                                <div class="bg-green-100 p-2 rounded-full">
+                                                    <i class="fas fa-phone text-green-600 text-sm"></i>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <p class="text-sm font-semibold text-gray-600">Phone</p>
+                                                    <a href="tel:${contact.phone}" class="text-green-700 hover:text-green-800 font-semibold transition-colors">${contact.phone}</a>
+                                                </div>
+                                            </div>
+                                            ${contact.email ? `
+                                                <div class="flex items-center">
+                                                    <div class="bg-blue-100 p-2 rounded-full">
+                                                        <i class="fas fa-envelope text-blue-600 text-sm"></i>
+                                                    </div>
+                                                    <div class="ml-3">
+                                                        <p class="text-sm font-semibold text-gray-600">Email</p>
+                                                        <a href="mailto:${contact.email}" class="text-blue-700 hover:text-blue-800 font-semibold transition-colors">${contact.email}</a>
+                                                    </div>
+                                                </div>
+                                            ` : ''}
+                                        </div>
                                     </div>
-                                ` : ''}
+                                    <div class="ml-4">
+                                        <div class="bg-blue-500 text-white p-4 rounded-full">
+                                            <i class="fas fa-user text-lg"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    `).join('')}
+                        `).join('')}
+                    </div>
                 </div>
             `).join('');
         }
@@ -907,7 +914,6 @@
         function loadAdminContent() {
             loadAdminAnnouncements();
             loadAdminEvents();
-            loadAdminMarketplace();
             loadAdminContacts();
         }
 
@@ -985,47 +991,7 @@
             `;
         }
 
-        async function loadAdminMarketplace() {
-            const postings = await loadData('marketplace');
-            const container = document.getElementById('adminMarketplaceList');
-            
-            if (postings.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center py-4">No postings to manage.</p>';
-                return;
-            }
 
-            postings.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            container.innerHTML = `
-                <h4 class="font-semibold mb-3">Existing Postings</h4>
-                <div class="space-y-3">
-                    ${postings.map(posting => `
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <h5 class="font-medium">${posting.item}</h5>
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(posting.type)}">
-                                            ${posting.type.toUpperCase()}
-                                        </span>
-                                    </div>
-                                    <p class="text-sm text-gray-600">${posting.description.substring(0, 100)}${posting.description.length > 100 ? '...' : ''}</p>
-                                    <p class="text-sm text-gray-500">${posting.contact}</p>
-                                </div>
-                                <div class="flex space-x-2 ml-4">
-                                    <button onclick="editPosting('${posting.id}')" class="text-blue-500 hover:text-blue-700">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button onclick="deletePosting('${posting.id}')" class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
 
         async function loadAdminContacts() {
             const contacts = await loadData('contacts');
@@ -1156,57 +1122,7 @@
             }
         }
 
-        async function addPosting() {
-            const type = document.getElementById('newPostingType').value;
-            const item = document.getElementById('newPostingItem').value.trim();
-            const contact = document.getElementById('newPostingContact').value.trim();
-            const price = document.getElementById('newPostingPrice').value.trim();
-            const description = document.getElementById('newPostingDescription').value.trim();
 
-            if (!item || !contact || !description) {
-                showNotification('Please fill in required fields!', 'error');
-                return;
-            }
-
-            const newPosting = {
-                type,
-                item,
-                contact,
-                price: price || '',
-                description,
-                date: new Date().toISOString(),
-                author: currentUser ? currentUser.email : 'admin'
-            };
-
-            const success = await saveData('marketplace', newPosting);
-            
-            if (success) {
-                // Clear form
-                document.getElementById('newPostingType').value = 'sell';
-                document.getElementById('newPostingItem').value = '';
-                document.getElementById('newPostingContact').value = '';
-                document.getElementById('newPostingPrice').value = '';
-                document.getElementById('newPostingDescription').value = '';
-
-                loadAdminMarketplace();
-                if (currentTab === 'marketplace') loadMarketplace();
-                
-                showNotification('Posting added successfully!', 'success');
-            }
-        }
-
-        async function deletePosting(id) {
-            if (confirm('Are you sure you want to delete this posting?')) {
-                const success = await deleteData('marketplace', id);
-                
-                if (success) {
-                    loadAdminMarketplace();
-                    if (currentTab === 'marketplace') loadMarketplace();
-                    
-                    showNotification('Posting deleted successfully!', 'success');
-                }
-            }
-        }
 
         async function addContact() {
             const name = document.getElementById('newContactName').value.trim();
@@ -1306,29 +1222,7 @@
             }
         }
 
-        async function editPosting(id) {
-            const postings = await loadData('marketplace');
-            const posting = postings.find(post => post.id === id);
-            if (posting) {
-                const newItem = prompt('Edit item/service:', posting.item);
-                const newDescription = prompt('Edit description:', posting.description);
-                const newContact = prompt('Edit contact:', posting.contact);
-                
-                if (newItem && newDescription && newContact) {
-                    posting.item = newItem;
-                    posting.description = newDescription;
-                    posting.contact = newContact;
-                    posting.updatedAt = new Date().toISOString();
-                    
-                    const success = await saveData('marketplace', posting);
-                    if (success) {
-                        loadAdminMarketplace();
-                        if (currentTab === 'marketplace') loadMarketplace();
-                        showNotification('Posting updated successfully!', 'success');
-                    }
-                }
-            }
-        }
+
 
         async function editContact(id) {
             const contacts = await loadData('contacts');
@@ -1375,14 +1269,7 @@
             });
         }
 
-        function getTypeColor(type) {
-            switch(type) {
-                case 'sell': return 'bg-green-100 text-green-800';
-                case 'buy': return 'bg-blue-100 text-blue-800';
-                case 'rent': return 'bg-purple-100 text-purple-800';
-                default: return 'bg-gray-100 text-gray-800';
-            }
-        }
+
 
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
@@ -1405,6 +1292,7 @@
 
             // Navigation event listeners
             document.getElementById('homeBtn').addEventListener('click', () => showView('public'));
+        document.getElementById('logoBtn').addEventListener('click', () => showView('public'));
             document.getElementById('adminBtn').addEventListener('click', () => showView('admin'));
 
             // Tab event listeners
@@ -1453,7 +1341,6 @@
             // Admin form submissions
             document.getElementById('addAnnouncementBtn').addEventListener('click', addAnnouncement);
             document.getElementById('addEventBtn').addEventListener('click', addEvent);
-            document.getElementById('addPostingBtn').addEventListener('click', addPosting);
             document.getElementById('addContactBtn').addEventListener('click', addContact);
 
             // Initialize the app
